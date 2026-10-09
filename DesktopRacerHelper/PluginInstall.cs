@@ -68,6 +68,8 @@ internal static class PluginInstall
 
 	private static string ArchivePath => Path.Combine(Deployment.Folder, "tools", "GDRE_tools-v2.7.0-windows.zip");
 
+	private static string BundledArchivePath => Path.Combine(AppContext.BaseDirectory, "Assets", "tools", GdreArchiveName);
+
 	public static string? BundledHash
 	{
 		get
@@ -734,16 +736,23 @@ internal static class PluginInstall
 			Directory.CreateDirectory(Path.GetDirectoryName(ArchivePath));
 			if (!File.Exists(ArchivePath))
 			{
-				using HttpClient httpClient = new HttpClient
+				if (File.Exists(BundledArchivePath))
 				{
-					Timeout = TimeSpan.FromMinutes(3.0)
-				};
-				string requestUri = "https://github.com/GDRETools/gdsdecomp/releases/download/v2.7.0/GDRE_tools-v2.7.0-windows.zip";
-				using HttpResponseMessage httpResponseMessage = httpClient.GetAsync(requestUri, HttpCompletionOption.ResponseHeadersRead).GetAwaiter().GetResult();
-				httpResponseMessage.EnsureSuccessStatusCode();
-				using Stream stream = httpResponseMessage.Content.ReadAsStreamAsync().GetAwaiter().GetResult();
-				using FileStream destination = new FileStream(ArchivePath, FileMode.Create, FileAccess.Write, FileShare.None);
-				stream.CopyTo(destination);
+					File.Copy(BundledArchivePath, ArchivePath, overwrite: true);
+				}
+				else
+				{
+					using HttpClient httpClient = new HttpClient
+					{
+						Timeout = TimeSpan.FromMinutes(3.0)
+					};
+					string requestUri = "https://github.com/GDRETools/gdsdecomp/releases/download/v2.7.0/GDRE_tools-v2.7.0-windows.zip";
+					using HttpResponseMessage httpResponseMessage = httpClient.GetAsync(requestUri, HttpCompletionOption.ResponseHeadersRead).GetAwaiter().GetResult();
+					httpResponseMessage.EnsureSuccessStatusCode();
+					using Stream stream = httpResponseMessage.Content.ReadAsStreamAsync().GetAwaiter().GetResult();
+					using FileStream destination = new FileStream(ArchivePath, FileMode.Create, FileAccess.Write, FileShare.None);
+					stream.CopyTo(destination);
+				}
 			}
 			if (!string.Equals(Deployment.HashFile(ArchivePath), "92a8d5d3d5c0cca159fc6cc34ebdda2cf7e1b448035cdabe1a67f0981cbd0a2c", StringComparison.OrdinalIgnoreCase))
 			{

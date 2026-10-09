@@ -17,6 +17,12 @@ internal static class Program
 			Task.Run(() => Diagnostics.BackgroundPanelCheckAsync(args[1])).GetAwaiter().GetResult();
 			return;
 		}
+		if (args.Length == 2 && args[0] == "--background-shot")
+		{
+			BackgroundCapture.Destination = args[1];
+			Application.Run(new MainForm());
+			return;
+		}
 		Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
 		Application.ThreadException += (object _, ThreadExceptionEventArgs e) =>
 		{
@@ -34,7 +40,7 @@ internal static class Program
 		bool createdNew;
 		using (new Mutex(initiallyOwned: true, "Local\\DesktopRacerHelper.Singleton", out createdNew))
 		{
-			if (!createdNew)
+			if (!createdNew && BackgroundCapture.Destination == null)
 			{
 				MessageBox.Show("Desktop Racer 助手已在运行。\nDesktop Racer Helper is already running.", "Desktop Racer 助手", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
 			}

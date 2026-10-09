@@ -19,6 +19,8 @@ namespace DesktopRacerHelper;
 
 internal sealed class MainForm : Form
 {
+	private static readonly TimeSpan BackgroundShotInterval = TimeSpan.FromMilliseconds(900.0);
+
 	private static readonly object RuntimeLogLock = new object();
 
 	private readonly AppSettings _settings = AppSettings.Load();
@@ -290,6 +292,14 @@ internal sealed class MainForm : Form
 	internal MainForm()
 	{
 		L.Lang = (string.Equals(_settings.Language, "en", StringComparison.OrdinalIgnoreCase) ? "en" : "zh");
+		if (BackgroundCapture.Destination != null)
+		{
+			_settings.DryRun = true;
+			_settings.AutoRunEnabled = false;
+			_settings.AntiDropEnabled = false;
+			_settings.CollectSupplyBoxesAfterSort = false;
+			_settings.SortAfterSupplyBoxClaim = false;
+		}
 		Icon = LoadAppIcon();
 		ApplyFormText();
 		StartPosition = FormStartPosition.CenterScreen;
@@ -343,8 +353,22 @@ internal sealed class MainForm : Form
 		SyncWatchdog();
 		Shown += async (object? _, EventArgs _) =>
 		{
-			await InitializeAssistantAsync();
+			if (BackgroundCapture.Destination == null)
+			{
+				await InitializeAssistantAsync();
+			}
 		};
+		if (BackgroundCapture.Destination != null)
+		{
+			ShowInTaskbar = false;
+			StartPosition = FormStartPosition.Manual;
+			Location = new Point(-32000, -32000);
+			BackgroundCapture.State = BackgroundCapture.Mode.Requested;
+			Shown += async (object? _, EventArgs _) =>
+			{
+				await RunBackgroundCaptureAsync();
+			};
+		}
 	}
 
 	private void SetTaskState(string currentKey, string nextKey)
@@ -977,6 +1001,10 @@ internal sealed class MainForm : Form
 
 	private async Task SyncGameApiEventsAsync()
 	{
+		if (BackgroundCapture.Destination != null)
+		{
+			return;
+		}
 		if (_manualChestStatsRunning || !_initialized || _initializing)
 		{
 			return;
@@ -4601,16 +4629,19 @@ internal sealed class MainForm : Form
 		{
 			_log.RemoveAt(0);
 		}
-		try
+		if (BackgroundCapture.Destination == null)
 		{
-			Directory.CreateDirectory(Deployment.Folder);
-			lock (RuntimeLogLock)
+			try
 			{
-				File.AppendAllText(Path.Combine(Deployment.Folder, "assistant.log"), text + Environment.NewLine, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+				Directory.CreateDirectory(Deployment.Folder);
+				lock (RuntimeLogLock)
+				{
+					File.AppendAllText(Path.Combine(Deployment.Folder, "assistant.log"), text + Environment.NewLine, new UTF8Encoding(encoderShouldEmitUTF8Identifier: false));
+				}
 			}
-		}
-		catch
-		{
+			catch
+			{
+			}
 		}
 		if (_activePage == "log")
 		{
@@ -4661,6 +4692,136 @@ internal sealed class MainForm : Form
 		{
 			Log("无法打开链接：" + ex.Message);
 		}
+	}
+
+	private async Task RunBackgroundCaptureAsync()
+	{
+		if (BackgroundCapture.State != BackgroundCapture.Mode.Requested)
+		{
+			return;
+		}
+		BackgroundCapture.State = BackgroundCapture.Mode.Running;
+		string destination = BackgroundCapture.Destination ?? "";
+		try
+		{
+			Directory.CreateDirectory(destination);
+			UseBackgroundSampleData();
+			_initializing = false;
+			_initialized = true;
+			_initializationError = "";
+			LocateGame();
+			UpdateConnection();
+			RefreshAutomationChrome();
+			RefreshEnvironment();
+			await Task.Delay(1500);
+			foreach (string page in BackgroundCapture.Pages)
+			{
+				ShowPage(page, forceRebuild: true);
+				await Task.Delay(BackgroundShotInterval);
+				BackgroundCapture.CaptureControl(this, Path.Combine(destination, page + ".png"));
+			}
+		}
+		catch
+		{
+		}
+		finally
+		{
+			BackgroundCapture.State = BackgroundCapture.Mode.Finished;
+			Close();
+		}
+	}
+
+	private void UseBackgroundSampleData()
+	{
+		if ((object)_lastScan == null || _lastScan.Items.Count == 0)
+		{
+			_lastScan = new WarehouseScan(96, 240, new List<ItemEntry>
+			{
+				new ItemEntry("DTR Coin [M]", Theme.Consumable.Name, 0, 0, 12)
+				{
+					IsConsumable = true,
+					IsMarketable = true
+				},
+				new ItemEntry("推进器核心 [M]", Theme.Qualities[4].Name, 0, 1, 2)
+				{
+					IsMarketable = true
+				},
+				new ItemEntry("合金装甲板", Theme.Qualities[3].Name, 0, 2, 3),
+				new ItemEntry("等离子线圈 [M]", Theme.Qualities[2].Name, 0, 3, 5)
+				{
+					IsMarketable = true
+				},
+				new ItemEntry("强化齿轮", Theme.Qualities[1].Name, 1, 0, 9),
+				new ItemEntry("废料螺栓", Theme.Qualities[0].Name, 1, 1, 24),
+				new ItemEntry("星舰蓝图 [M]", Theme.Qualities[5].Name, 1, 2, 1)
+				{
+					IsMarketable = true
+				},
+				new ItemEntry("曲率燃料", Theme.Qualities[2].Name, 1, 3, 7)
+			}, "", Complete: true, CanScroll: false);
+		}
+		if (_chestLog.TotalOpened > 0)
+		{
+			return;
+		}
+		_chestLog.TotalOpened = 128;
+		_chestLog.QualityTotals = new Dictionary<string, long>(StringComparer.OrdinalIgnoreCase)
+		{
+			[Theme.Qualities[0].Name] = 61,
+			[Theme.Qualities[1].Name] = 27,
+			[Theme.Qualities[2].Name] = 19,
+			[Theme.Qualities[3].Name] = 12,
+			[Theme.Qualities[4].Name] = 9
+		};
+		_chestLog.RecentOpenedAt = Enumerable.Range(0, 18).Select((int index) => DateTime.Now.AddMinutes(-index * 3)).ToList();
+		_chestLog.Records = new List<ChestRecord>
+		{
+			new ChestRecord
+			{
+				Name = "DTR Coin [M]",
+				Quality = Theme.Consumable.Name,
+				Count = 12,
+				Time = DateTime.Now.AddMinutes(-3.0)
+			},
+			new ChestRecord
+			{
+				Name = "等离子线圈 [M]",
+				Quality = Theme.Qualities[2].Name,
+				Count = 5,
+				Time = DateTime.Now.AddMinutes(-11.0)
+			},
+			new ChestRecord
+			{
+				Name = "星舰蓝图 [M]",
+				Quality = Theme.Qualities[5].Name,
+				Count = 1,
+				Time = DateTime.Now.AddMinutes(-26.0)
+			},
+			new ChestRecord
+			{
+				Name = "强化齿轮",
+				Quality = Theme.Qualities[1].Name,
+				Count = 9,
+				Time = DateTime.Now.AddMinutes(-42.0)
+			}
+		};
+		_chestLog.TradeRecords = new List<ChestRecord>
+		{
+			new ChestRecord
+			{
+				Name = "推进器核心 [M]",
+				Quality = Theme.Qualities[4].Name,
+				Count = 2,
+				Time = DateTime.Now.AddMinutes(-18.0)
+			},
+			new ChestRecord
+			{
+				Name = "DTR Coin [M]",
+				Quality = Theme.Consumable.Name,
+				Count = 8,
+				Time = DateTime.Now.AddMinutes(-35.0)
+			}
+		};
 	}
 
 	private Button MakeDisclaimerLinkButton(string text, string iconName, Color iconColor, Color textColor, int width, Action action)

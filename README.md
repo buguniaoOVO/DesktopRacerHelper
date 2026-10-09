@@ -7,7 +7,19 @@
 
 Desk Top Racer 的 Windows 桌面助手。助手在本机通过游戏内接口检查并领取补给箱、整理仓库、按品质策略处理物品，并显示道具图片、Steam 市场参考价和掉落统计。
 
-**[下载 v0.7.18](https://github.com/buguniaoOVO/DesktopRacerHelper/releases/tag/v0.7.18)** · [部署说明](docs/DEPLOYMENT-REVIEW.md) · [问题反馈](https://github.com/buguniaoOVO/DesktopRacerHelper/issues)
+**[下载 v0.7.18](https://github.com/buguniaoOVO/DesktopRacerHelper/releases/latest)** · [首次使用说明](#首次使用) · [问题反馈](https://github.com/buguniaoOVO/DesktopRacerHelper/issues)
+
+![运行概览](docs/images/overview.png)
+
+## 首次使用
+
+1. 在 Steam 安装 Desk Top Racer，并至少启动过一次。
+2. 从下载页获取 `DesktopRacerHelper-v0.7.18-win-x64.zip`，完整解压到当前 Windows 用户可写的目录。`Assets` 目录需要和 EXE 放在一起，不要单独移动。
+3. **务必先打开 `DesktopRacerHelper.exe`，让助手完成初始化，等待环境两项都安装完成。** 打开后助手会自动校验游戏文件并安装两项环境：跟随发布包的程序与接口环境，以及内置的 Godot 补丁工具 GDRE v2.7.0。两项都装好后，环境页的“校验结果”显示通过、“Steam 游戏接口”显示已部署。这一过程只在本机进行，不需要联网。
+4. 首次打开时如果助手还没识别到游戏目录，在“设置”页选择这台电脑上的 `Desk Top Racer.exe`，再回到“环境”页点一次“一键部署”。
+5. 环境两项都完成后，从 Steam 启动游戏，等助手顶部显示“游戏已连接”，再点“一键开启”。
+
+环境部署过之后不需要每次重新安装：助手启动时会核对部署记录和文件指纹，校验通过就直接复用。只有游戏更新更换了 EXE、或换了电脑时，才需要再部署一次。
 
 ## 功能
 
@@ -21,27 +33,21 @@ Desk Top Racer 的 Windows 桌面助手。助手在本机通过游戏内接口�
 | 环境 | 一键部署游戏接口，保存原版备份，可校验并恢复 |
 | 运行日志 | 逐条带时间的运行记录与保留时间设置 |
 
+![仓库道具与参考价](docs/images/warehouse.png)
+![开箱与品质统计](docs/images/chest.png)
+![品质策略](docs/images/quality.png)
+![设置](docs/images/settings.png)
+![环境部署](docs/images/environment.png)
+
 ## 工作原理
 
-助手把接口程序集部署到 Steam 启动的游戏 EXE，并在游戏目录保存原版备份；游戏运行期间无法替换 EXE，退出后助手完成接入。接口启动后助手按当前游戏进程 PID 探测 `127.0.0.1:19110–19120`，连接后通过本机回环地址调用游戏内部入口执行动作，界面负责显示状态与保存设置。
+助手把接口脚本部署到 Steam 启动的游戏 EXE 内，并在游戏目录保存原版备份；游戏运行期间无法替换 EXE，退出后助手完成接入。接口启动后助手按当前游戏进程 PID 探测 `127.0.0.1:19110–19120`，连接后通过回环地址调用游戏内部入口执行动作，界面负责显示状态与保存设置。
 
-价格查询使用 Steam 市场参考报价，并按配置的货币换算；参考估值不等于可提现金额，助手不执行市场挂单或交易。
-
-## 安装与使用
-
-环境为 Windows 10/11 64 位、Steam 版 Desk Top Racer。
-
-1. 在 Steam 安装 Desk Top Racer，并至少启动一次。
-2. 从 Releases 下载 `DesktopRacerHelper-v0.7.18-win-x64.zip`，完整解压到当前用户可写的目录。发布包为 .NET 10 自包含程序，目标电脑无需另装运行时，`Assets` 目录需与 EXE 一起保留。
-3. 启动 `DesktopRacerHelper.exe`，在“设置”页选择这台电脑上的 `Desk Top Racer.exe`。
-4. 在“环境”页点“一键部署”。首次部署需要联网下载 GDRE v2.7.0，助手会在解压前校验固定 SHA-256。
-5. 点顶部“启动游戏”，或从 Steam 启动游戏；等助手显示游戏已连接后再点“一键开启”。
-
-游戏目录需要当前用户可写。Steam 库位于受保护目录时，请使用具有该目录写入权限的 Windows 账户运行部署。助手每次启动都会核对部署记录与文件指纹，校验通过时复用现有环境。
+价格查询使用 Steam 市场公开报价，并按配置的货币换算；参考估值不等于可提现金额，助手不执行市场挂单或交易。
 
 ## 源码与构建
 
-WinForms 助手源码位于 `DesktopRacerHelper/`，游戏侧接口脚本位于 `Assets/game-plugin/`。
+WinForms 助手源码位于 `DesktopRacerHelper/`，游戏侧接口脚本位于 `Assets/game-plugin/`，内置补丁工具位于 `Assets/tools/`。
 
 ```powershell
 dotnet publish DesktopRacerHelper.csproj -c Release -r win-x64 --self-contained true `
