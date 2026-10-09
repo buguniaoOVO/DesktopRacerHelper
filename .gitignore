@@ -1,0 +1,9 @@
+**/bin/
+**/obj/
+*.zip
+*.pdb
+*.exe
+*.user
+.vs/
+.idea/
+.vscode/
