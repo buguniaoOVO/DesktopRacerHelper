@@ -3,13 +3,13 @@
   <a href="https://github.com/buguniaoOVO/DesktopRacerHelper"><img src="docs/star-support.png" alt="给 GitHub 仓库点个 Star" width="250"></a>
 </p>
 
-# DTR 中控助手 v0.85
+# DTR 中控助手 v0.8.6
 
 Windows x64 桌面客户端，用于管理《Desktop Racer》的本机与 Sandboxie 游戏进程。
 
-[下载 v0.85 EXE](https://github.com/buguniaoOVO/DesktopRacerHelper/releases/download/v0.85/DTRAssistant-v0.85-win-x64.exe) · [首次使用](#首次使用) · [问题反馈](https://github.com/buguniaoOVO/DesktopRacerHelper/issues)
+[下载 v0.8.6 EXE](https://github.com/buguniaoOVO/DesktopRacerHelper/releases/download/v0.8.6/DTRAssistant-v0.8.6-win-x64.exe) · [首次使用](#首次使用) · [问题反馈](https://github.com/buguniaoOVO/DesktopRacerHelper/issues)
 
-## v0.85 更新
+## v0.8.6 更新
 
 - 优化连接逻辑与限帧表现，降低多开资源占用。
 - 修复多开幽灵捕捉；活动期间仍可能偶发遗漏。
@@ -19,7 +19,7 @@ Windows x64 桌面客户端，用于管理《Desktop Racer》的本机与 Sandbo
 
 1. 下载并运行 EXE。覆盖升级时先退出助手，再将下载的文件改名为 `DTR中控助手.exe` 并覆盖原文件；保留安装目录中的 `Assets` 文件夹。
 2. 首次部署桥接时，请退出游戏进程。助手会把本机桥接部署到主机和现有 Sandboxie 游戏副本，并保留原版 EXE 备份。
-3. 等待运行日志显示部署完成，再从 Steam 或 Sandboxie 启动游戏。
+3. 等待运行日志显示部署完成，再从 Steam 或 Sandboxie 启动游戏。`n`n若日志提示未配置有效的游戏 EXE 路径，打开“设置 → 游戏路径与桥接”，填写或浏览选择 `Desk Top Racer.exe`，再点击“保存路径并部署桥接”。
 4. 等待总览显示账号在线，然后按账号启用自动化任务。
 
 桥接更新可点击助手顶部的“更新桥接”。助手会处理连接异常或版本过期的游戏进程，部署对应副本并重新启动该进程。
