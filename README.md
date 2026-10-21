@@ -1,36 +1,44 @@
 <p align="center">
   <img src="docs/afdian-support.jpg" alt="爱发电赞助" width="250">
-  <a href="https://github.com/buguniaoOVO/DesktopRacerHelper"><img src="docs/star-support.png" alt="给 GitHub 仓库点 Star" width="250"></a>
+  <a href="https://github.com/buguniaoOVO/DesktopRacerHelper"><img src="docs/star-support.png" alt="给 GitHub 仓库点个 Star" width="250"></a>
 </p>
 
-# DTR 中控助手 v0.75
+# DTR 中控助手 v0.85
 
-Windows x64 桌面助手，用于管理《Desktop Racer》多账号游戏进程和自动化任务。
+Windows x64 桌面客户端，用于管理《Desktop Racer》的本机与 Sandboxie 游戏进程。
 
-[下载 v0.75](https://github.com/buguniaoOVO/DesktopRacerHelper/releases/tag/v0.75)
+[下载 v0.85 EXE](https://github.com/buguniaoOVO/DesktopRacerHelper/releases/download/v0.85/DTRAssistant-v0.85-win-x64.exe) · [首次使用](#首次使用) · [问题反馈](https://github.com/buguniaoOVO/DesktopRacerHelper/issues)
 
-## 更新与使用
+## v0.85 更新
 
-本次版本用于覆盖更新。下载 EXE 后，退出助手，将文件改名为 `DTR中控助手.exe` 并覆盖到原安装目录，保留原有 `Assets` 文件夹。启动助手，再通过 Steam 或 Sandboxie 启动游戏；账号状态显示在线后，在总览按账号勾选所需任务。
+- 优化连接逻辑与限帧表现，降低多开资源占用。
+- 修复多开幽灵捕捉；活动期间仍可能偶发遗漏。
+- 更新桥接时请退出游戏，部署完成后重新启动对应游戏。连接状态异常时，可多刷新或重试连接。
 
-## 连接与功能
+## 首次使用
 
-助手按 PID 匹配游戏账号，优先接入 `127.0.0.1:19110–19120` 的本机游戏接口。本机接口不可用时，尝试游戏 HTTPS 接口。助手支持多进程和 Sandboxie。
+1. 下载并运行 EXE。覆盖升级时先退出助手，再将下载的文件改名为 `DTR中控助手.exe` 并覆盖原文件；保留安装目录中的 `Assets` 文件夹。
+2. 首次部署桥接时，请退出游戏进程。助手会把本机桥接部署到主机和现有 Sandboxie 游戏副本，并保留原版 EXE 备份。
+3. 等待运行日志显示部署完成，再从 Steam 或 Sandboxie 启动游戏。
+4. 等待总览显示账号在线，然后按账号启用自动化任务。
 
-总览提供开箱、背包整理、Steam 转移、自动换装、自动维修等开关。背包检测默认每 3 分钟，维修检测默认每 5 分钟；背包达到设置阈值后，按 Steam 转移、换装、收藏、拆解/出售顺序整理。
+桥接更新可点击助手顶部的“更新桥接”。助手会处理连接异常或版本过期的游戏进程，部署对应副本并重新启动该进程。
 
-当前游戏接口 1.0.2 暂不支持自动升级装备，该功能需要接口 1.0.3。
+## 功能
 
-## 界面截图
+- 总览显示每个账号的资源、背包、补给箱和比赛状态，并管理账号自动化开关。
+- 品质策略支持收藏、拆解、出售与自动换装。
+- 统计和掉落记录显示补给箱数量、物品品质及品质概率。
+- 万圣节页面显示各账号幽灵捕捉状态；每个账号每日上限为 100 次，活动期间仍可能出现遗漏。
+- 帧率上限支持不限帧、10、15 和 30 FPS，可按游戏进程单独设置。
+- 设置可调整主题、检测周期、操作间隔和更新提示。
 
-### 品质策略
+助手通过游戏进程内的本机桥接协议连接游戏。桥接为每个进程动态分配本机端口，助手按协议响应中的 PID 匹配账号，支持主机和 Sandboxie 多开。
 
-![品质策略页](docs/images/quality-v0.75.jpg)
+## 支持作者
 
-### 检测设置
+可以扫描页首的爱发电图片支持作者，也可以给仓库点 Star。问题反馈请附上助手版本、游戏版本和发生时间。
 
-![设置页](docs/images/settings-v0.75.jpg)
-
-自动化操作可能受到游戏或平台规则限制，请阅读相关规则并自行评估账号风险。
+自动化操作请遵守游戏与平台规则，并自行评估账号风险。
 
 **by 阿丸Awan**
