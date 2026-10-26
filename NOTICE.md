@@ -14,3 +14,14 @@
 | 发电与 Star 图 | 使用内置 imagegen 制作，说明见 docs/star-card-generation.md |
 
 源码仓库不分发游戏本体、生成的接口程序集、个人配置、库存与开箱记录或完整游戏日志。
+
+## v0.8.19 运行库
+
+本版 EXE 通过 Frida 按 PID 连接游戏；上表中的 GDRE 与桥接脚本用于仓库保留的历史实现。
+
+| 组件 | 来源与许可 |
+| --- | --- |
+| Node.js 24.19.0 | 助手缓存中的 worker 运行环境，遵循 MIT 与随附第三方许可；https://nodejs.org/ |
+| Frida 17.24.3 | 进程内动态适配，遵循 LGPL-2.0 与 WxWindows-exception-3.1；https://github.com/frida/frida |
+
+Node.js、Frida 及 JavaScript 依赖的许可文件随内置运行库保留，首次连接时解压至 `%LOCALAPPDATA%\DTRControlAssistant\frida`。Frida 源码和构建说明见 https://github.com/frida/frida/tree/17.24.3 。
